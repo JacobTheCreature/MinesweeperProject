@@ -8,7 +8,7 @@ minesweepercell::minesweepercell() :
 {}
 
 
-int minesweepercell::x() const
+int minesweepercell::cellX() const
 {
     return m_x;
 }
@@ -64,10 +64,8 @@ void minesweepercell::setFlagged(bool flagged)
     }
 }
 
-void minesweepercell::setNeighboringBombs(int count)
+int minesweepercell::setNeighboringBombs()
 {
-    if (m_neighboringBombs != count) {
-        m_neighboringBombs = count;
-        emit neighboringBombsChanged();
-    }
+    return m_neighboringBombs++;
+    emit neighboringBombsChanged();
 }
