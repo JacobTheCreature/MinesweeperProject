@@ -6,11 +6,12 @@
 class minesweepercell : public QQuickItem
 {
     Q_OBJECT
-    QML_ELEMENT    Q_PROPERTY(bool isBomb READ isBomb NOTIFY isBombChanged)
+    QML_ELEMENT
+    Q_PROPERTY(bool isBomb READ isBomb NOTIFY isBombChanged)
     Q_PROPERTY(bool isRevealed READ isRevealed NOTIFY isRevealedChanged)
     Q_PROPERTY(bool isFlagged READ isFlagged WRITE setFlagged NOTIFY isFlaggedChanged)
     Q_PROPERTY(int neighboringBombs READ neighboringBombs NOTIFY neighboringBombsChanged)
-    Q_PROPERTY(int x READ x NOTIFY isXChanged)
+    Q_PROPERTY(int cellX READ cellX NOTIFY isXChanged)
 
 public:
     minesweepercell();
@@ -19,13 +20,13 @@ public:
     bool isRevealed() const;
     bool isFlagged() const;
     int neighboringBombs() const;
-    int x() const;
+    int cellX() const;
 
 public slots:
     void setBomb(bool bomb);
     void setRevealed(bool revealed);
     void setFlagged(bool flagged);
-    void setNeighboringBombs(int count);
+    int setNeighboringBombs();
     void setX(int index);
 
 signals:
