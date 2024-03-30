@@ -1,6 +1,11 @@
 #include "minesweepercell.h"
 
-minesweepercell::minesweepercell() {}
+minesweepercell::minesweepercell() :
+    m_isBomb(false),
+    m_isRevealed(false),
+    m_isFlagged(false),
+    m_neighboringBombs(0)
+{}
 
 
 int minesweepercell::x() const
