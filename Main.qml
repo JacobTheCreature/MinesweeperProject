@@ -9,6 +9,11 @@ Window {
     width: 500
     height: 565
     title: "Counter App"
+    minimumHeight: 565
+    maximumHeight: 565
+    minimumWidth: 500
+    maximumWidth: 500
+
 
     property int numRows: 10
     property int numColumns: 10
