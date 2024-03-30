@@ -9,7 +9,6 @@ Window {
     height: 600
     title: "Counter App"
 
-
     property int numRows: 10
     property int numColumns: 10
     property bool firstClick: true
@@ -30,51 +29,42 @@ Window {
             cellWidth: 25
             cellHeight: 25
             delegate: Minesweepercell {
-                id: minesweeperCell
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (!minesweeperCell.isRevealed && !minesweeperCell.isFlagged && !minesweeperCell.isBomb) {
-                            minesweeperCell.setRevealed(true)
-                        }
-                        if (firstClick) {
-                            firstClick = false
-
-                            var theCell = grid.itemAt(5,5)
-                            theCell.setBomb(true)
-
-                        }
-                    }
-                }
-                MouseArea {
-                    acceptedButtons: Qt.RightButton
-                    anchors.fill: parent
-                    onClicked: {
-                        if (minesweeperCell.isFlagged === true)
-                        {
-                            minesweeperCell.setFlagged(false)
-                        }else{
-                            minesweeperCell.setFlagged(true)
-                        }
-                    }
-                }
+                id: cell
                 Rectangle {
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: minesweeperCell.isRevealed ? "lightgrey" : "grey"
+                    color: cell.isRevealed ? "lightgrey" : "grey"
                     border.color: "black"
                     Text {
                         anchors.centerIn: parent
-                        text: minesweeperCell.isBomb ? "B" : ""
+                        text: cell.isBomb ? "B" : ""
                     }
                     Text {
                         anchors.centerIn: parent
-                        text: minesweeperCell.isFlagged ? "F" : ""
+                        text: cell.isFlagged ? "F" : ""
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if(!cell.isRevealed && !cell.isFlagged && !cell.isBomb) {
+                                cell.setRevealed((true))
+                            }
+                        }
+                    }
+                    MouseArea {
+                        acceptedButtons: Qt.RightButton
+                        anchors.fill: parent
+                        onClicked: {
+                            if (cell.isFlagged === true) {
+                                cell.setFlagged(false)
+                            } else {
+                                cell.setFlagged(true)
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
 }
 
