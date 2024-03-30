@@ -6,7 +6,12 @@
 class minesweepercell : public QQuickItem
 {
     Q_OBJECT
-    QML_ELEMENT
+    QML_ELEMENT    Q_PROPERTY(bool isBomb READ isBomb NOTIFY isBombChanged)
+    Q_PROPERTY(bool isRevealed READ isRevealed NOTIFY isRevealedChanged)
+    Q_PROPERTY(bool isFlagged READ isFlagged WRITE setFlagged NOTIFY isFlaggedChanged)
+    Q_PROPERTY(int neighboringBombs READ neighboringBombs NOTIFY neighboringBombsChanged)
+    Q_PROPERTY(int x READ x NOTIFY isXChanged)
+
 public:
     minesweepercell();
 
