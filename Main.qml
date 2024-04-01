@@ -138,6 +138,7 @@ Window {
                     // If a cell is a bomb it has a B
                     Text {
                         anchors.centerIn: parent
+                        visible: cell.isRevealed   // Just to force the bomb to remain hidden
                         text: cell.isBomb ? "B" : ""
                     }
                     // If a cell is flagged it has an F
@@ -148,18 +149,10 @@ Window {
                     // Clickable area. This area is responible for revealing cells
                     MouseArea {
                         anchors.fill: parent
-                        // If a cell is unrevealed, not flagged, and not a bomb, it will reveal it
-                        onClicked: {
-                            if(!cell.isRevealed && !cell.isFlagged && !cell.isBomb) {
-                                cell.setRevealed((true))
-
-
-                                // !TODO upon the first reveal bombs cannot spawn in or around the cell!
-                                // Currently this onnly makes it so bombs wont spawn in the selected cell
-
-                                // Upon the first reveal it generates bombs
-                                if (firstClick) {
-                                    firstClick = false
+                        onClicked:
+                            if (firstClick) {
+                                    firstClick = false;
+                                    cell.setRevealed(true);
                                     for (var i = 0; i < 10; i++) {
                                         var randomIndex = Math.floor(Math.random()*100)
                                         while (randomIndex == cell.cellX) {
@@ -169,6 +162,9 @@ Window {
                                         randomCell.setBomb(true)
                                     }
                                 }
+                            else {
+                                    if (!cell.isRevealed && !cell.isFlagged) {
+                                        cell.setRevealed(true);
                             }
                             // There needs to be special nehboring bomb counting for edge and corner cells. This is for only the top left cell
                             if (cell.cellX == 0) {
