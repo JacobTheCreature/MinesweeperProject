@@ -31,6 +31,7 @@ Window {
                 cell.reset();
             }
         }
+
     //timer function
     Timer {
             id: gameTime
@@ -72,24 +73,24 @@ Window {
         }
         // Reset button to reset field !Need to make a reset method for Minesweepercell class!
         Rectangle {
-             id: reset
-             width: 125
-             height: 65
-             color: "Grey"
-             Text {
-                 text: "Reset"
-                 anchors.fill: parent
-             }
-             anchors {
-                 top: parent.top
-                 bottom: parent.bottom
-                 left: diffSelect.right
-             }
-             MouseArea {
+            id: reset
+            width: 125
+            height: 65
+            color: "Grey"
+            Text {
+                text: "Reset"
                 anchors.fill: parent
-                onClicked: resetGame() // Call resetGame when the reset button is clicked
-                       }
-             }
+            }
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: diffSelect.right
+            }
+            MouseArea {
+               anchors.fill: parent
+               onClicked: resetGame() // Call resetGame when the reset button is clicked
+            }
+        }
         // Shows how many flags you have left !Look into making a flag class that acts as a counter maybe!
         Rectangle {
             id: flags
@@ -108,26 +109,26 @@ Window {
         }
         // Timer to show how long the game lasts !Look into Timer!
         Rectangle {
-                            id: timer
-                            width: 125
-                            height: 65
-                            color: "Cyan"
-                            Text {
-                                text: {
-                                           var minutes = Math.floor(gameTime.secondsElapsed / 60);
-                                           var seconds = gameTime.secondsElapsed % 60;
-                                           var Seconds = seconds < 10 ? "0" + seconds : seconds;
-                                           return gameTime.running ? "Time: " + minutes + ":" + Seconds : "Time: 0:00";
-                                       }
-                                anchors.fill: parent
-                            }
-                            anchors {
-                                top: parent.top
-                                bottom: parent.bottom
-                                left: flags.right
-                            }
-                        }
-                    }
+            id: timer
+            width: 125
+            height: 65
+            color: "Cyan"
+            Text {
+                text: {
+                    var minutes = Math.floor(gameTime.secondsElapsed / 60);
+                    var seconds = gameTime.secondsElapsed % 60;
+                    var Seconds = seconds < 10 ? "0" + seconds : seconds;
+                    return gameTime.running ? "Time: " + minutes + ":" + Seconds : "Time: 0:00";
+                }
+                anchors.fill: parent
+            }
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: flags.right
+            }
+        }
+    }
 
 
     // The minesweeper feild
@@ -155,9 +156,28 @@ Window {
             // Create a Minesweepercell item for each cell
             delegate: Minesweepercell {
                 id: cell
-                // Give each cell a unique x value corrosponding to its index in the grid
+                // Give each cell a unique x value corrosponding to its index in the grid and assignit a position value
                 Component.onCompleted: {
                     cell.setX(index)
+
+                    if (cell.cellX == 0) {cell.setPlacement(0); // top left
+                    } else if (cell.cellX > 0 && cell.cellX < numRows - 1) {
+                        cell.setPlacement(1); // top row
+                    } else if (cell.cellX == numColumns - 1) {
+                        cell.setPlacement(2); // top right
+                    } else if (cell.cellX % numRows == 0 && cell.cellX != numRows * numColumns - numRows) {
+                        cell.setPlacement(3); // left side
+                    } else if ((cell.cellX + 1) % numRows == 0 && cell.cellX != numRows*numColumns-1) {
+                        cell.setPlacement(5); // right side
+                    } else if (cell.cellX == numRows * numColumns - numRows) {
+                        cell.setPlacement(6); // bottom left
+                    } else if (cell.cellX > numRows * numRows - numRows && cell.cellX < numRows * numColumns - 1) {
+                        cell.setPlacement(7); // bottom row
+                    } else if (cell.cellX == numRows * numColumns - 1) {
+                        cell.setPlacement(8); // bottom right
+                    } else {
+                        cell.setPlacement(4); // center
+                    }
                 }
                 // Create a rectangle within each Minesweepercell to give it visual properties
                 Rectangle {
@@ -201,8 +221,9 @@ Window {
                                 }
                             }
                             else {
-                                    if (!cell.isRevealed && !cell.isFlagged) {
-                                        cell.setRevealed(true);
+                                if (!cell.isRevealed || cell.isFlagged) {
+                                cell.setRevealed(true);
+                                    console.log(cell.placement)
                             }
                             // There needs to be special nehboring bomb counting for edge and corner cells. This is for only the top left cell
                             if (cell.cellX == 0) {
