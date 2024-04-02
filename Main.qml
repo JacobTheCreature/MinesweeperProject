@@ -22,17 +22,6 @@ Window {
     property var cellPositions: []
     property var bombPositions: []
 
-    Timer {
-        id: gameTime
-        interval: 1000 // updates every second
-        repeat: true
-        property int secondsElapsed: 0 // tracker
-
-        onTriggered: {
-            secondsElapsed += 1; // increase timer
-        }
-    }
-
     // Top navigation bar
     Rectangle {
         id: topbar
@@ -94,26 +83,21 @@ Window {
         }
         // Timer to show how long the game lasts !Look into Timer!
         Rectangle {
-                    id: timer
-                    width: 125
-                    height: 65
-                    color: "Cyan"
-                    Text {
-                        text: {
-                                   var minutes = Math.floor(gameTime.secondsElapsed / 60);
-                                   var seconds = gameTime.secondsElapsed % 60;
-                                   var Seconds = seconds < 10 ? "0" + seconds : seconds;
-                                   return gameTime.running ? "Time: " + minutes + ":" + Seconds : "Time: 0:00";
-                               }
-                        anchors.fill: parent
-                    }
-                    anchors {
-                        top: parent.top
-                        bottom: parent.bottom
-                        left: flags.right
-                    }
-                }
+            id: timer
+            width: 125
+            height: 65
+            color: "Cyan"
+            Text {
+                text: "Timer"
+                anchors.fill: parent
             }
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: flags.right
+            }
+        }
+    }
 
 
     // The minesweeper feild
@@ -149,12 +133,12 @@ Window {
                 Rectangle {
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: cell.isRevealed ? "lightgrey" : "grey"
+                    color: mouseHover.hovered && !cell.isRevealed ? "darkslategrey" : cell.isRevealed ? "lightgrey" : "grey"
                     border.color: "black"
                     // If a cell is a bomb it has a B
                     Text {
                         anchors.centerIn: parent
-                        visible: cell.isRevealed
+                        // visible: cell.isRevealed   // Just to force the bomb to remain hidden
                         text: cell.isBomb ? "B" : ""
                     }
                     // If a cell is flagged it has an F
@@ -162,22 +146,27 @@ Window {
                         anchors.centerIn: parent
                         text: cell.isFlagged ? "F" : ""
                     }
+                    HoverHandler {
+                        id: mouseHover
+                        acceptedDevices: PointerDevice.Mouse
+                    }
+
                     // Clickable area. This area is responible for revealing cells
                     MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                if (firstClick) {
+                        anchors.fill: parent
+                        onClicked:
+                            if (firstClick) {
                                     firstClick = false;
-                                    gameTime.secondsElapsed = 0;
-                                    gameTime.restart();
-                                    gameTime.running = true;
                                     cell.setRevealed(true);
                                     for (var i = 0; i < 10; i++) {
                                         var randomIndex = Math.floor(Math.random()*100)
-                                        while (randomIndex == cell.cellX) {
+                                        console.log("first: " + randomIndex)
+                                        while (randomIndex == cell.cellX || grid.itemAtIndex(randomIndex).isBomb) {
                                             randomIndex = Math.floor(Math.random()*100)
+                                            console.log("while " + randomIndex)
                                         }
                                         var randomCell = grid.itemAtIndex(randomIndex)
+                                        console.log("placement: " + randomIndex)
                                         randomCell.setBomb(true)
                                     }
                                 }
@@ -217,4 +206,3 @@ Window {
     }
 }
 
-}
