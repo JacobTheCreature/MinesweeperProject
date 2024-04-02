@@ -69,3 +69,16 @@ int minesweepercell::setNeighboringBombs()
     return m_neighboringBombs++;
     emit neighboringBombsChanged();
 }
+void minesweepercell::reset() {
+    m_isBomb = false;
+    m_isRevealed = false;
+    m_isFlagged = false;
+    m_neighboringBombs = 0;
+    m_x = 0;
+
+    emit isBombChanged();
+    emit isRevealedChanged();
+    emit isFlaggedChanged();
+    emit neighboringBombsChanged();
+    emit isXChanged();
+}
