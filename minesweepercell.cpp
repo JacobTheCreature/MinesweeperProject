@@ -33,12 +33,22 @@ int minesweepercell::neighboringBombs() const
     return m_neighboringBombs;
 }
 
+int minesweepercell::placement() const
+{
+    return m_placement;
+}
+
 void minesweepercell::setX(int index)
 {
     m_x = index;
     emit isXChanged();
 }
 
+void minesweepercell::setPlacement(int zone)
+{
+    m_placement = zone;
+    emit isPlacementChanged();
+}
 
 void minesweepercell::setBomb(bool bomb)
 {
