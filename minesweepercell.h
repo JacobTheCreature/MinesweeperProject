@@ -28,6 +28,7 @@ public slots:
     void setFlagged(bool flagged);
     int setNeighboringBombs();
     void setX(int index);
+    void reset();
 
 signals:
     void isBombChanged();
