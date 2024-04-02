@@ -223,7 +223,6 @@ Window {
                             else {
                                 if (!cell.isRevealed || cell.isFlagged) {
                                 cell.setRevealed(true);
-                                    console.log(cell.placement)
                             }
                             // There needs to be special nehboring bomb counting for edge and corner cells. This is for only the top left cell
                             if (cell.cellX == 0) {
