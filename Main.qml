@@ -22,7 +22,15 @@ Window {
     property var cellPositions: []
     property var bombPositions: []
 
-
+    function resetGame() {
+            gameTime.secondsElapsed = 0;
+            gameTime.running = false;
+            firstClick = true; // Reset game state
+            for (var i = 0; i < grid.model; i++) { // Reset the game board
+                var cell = grid.itemAtIndex(i);
+                cell.reset();
+            }
+        }
     //timer function
     Timer {
             id: gameTime
@@ -64,20 +72,24 @@ Window {
         }
         // Reset button to reset field !Need to make a reset method for Minesweepercell class!
         Rectangle {
-            id: reset
-            width: 125
-            height: 65
-            color: "Grey"
-            Text {
-                text: "Reset"
+             id: reset
+             width: 125
+             height: 65
+             color: "Grey"
+             Text {
+                 text: "Reset"
+                 anchors.fill: parent
+             }
+             anchors {
+                 top: parent.top
+                 bottom: parent.bottom
+                 left: diffSelect.right
+             }
+             MouseArea {
                 anchors.fill: parent
-            }
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: diffSelect.right
-            }
-        }
+                onClicked: resetGame() // Call resetGame when the reset button is clicked
+                       }
+             }
         // Shows how many flags you have left !Look into making a flag class that acts as a counter maybe!
         Rectangle {
             id: flags
