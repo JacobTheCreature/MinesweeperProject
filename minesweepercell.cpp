@@ -74,7 +74,6 @@ void minesweepercell::reset() {
     m_isRevealed = false;
     m_isFlagged = false;
     m_neighboringBombs = 0;
-    m_x = 0;
 
     emit isBombChanged();
     emit isRevealedChanged();
