@@ -172,25 +172,22 @@ Window {
                     // Clickable area. This area is responible for revealing cells
                     MouseArea {
                         anchors.fill: parent
-                        onClicked:
+                        onClicked: {
                             if (firstClick) {
-                                    firstClick = false;
+                                firstClick = false;
                                 gameTime.secondsElapsed = 0;
-                                                                   gameTime.restart();
-                                                                   gameTime.running = true;
-                                                                   cell.setRevealed(true);
-                                    for (var i = 0; i < 10; i++) {
-                                        var randomIndex = Math.floor(Math.random()*100)
-                                        console.log("first: " + randomIndex)
-                                        while (randomIndex == cell.cellX || grid.itemAtIndex(randomIndex).isBomb) {
-                                            randomIndex = Math.floor(Math.random()*100)
-                                            console.log("while " + randomIndex)
-                                        }
-                                        var randomCell = grid.itemAtIndex(randomIndex)
-                                        console.log("placement: " + randomIndex)
-                                        randomCell.setBomb(true)
+                                gameTime.restart();
+                                gameTime.running = true;
+                                cell.setRevealed(true);
+                                for (var i = 0; i < 10; i++) {
+                                    var randomIndex = Math.floor(Math.random()*100)
+                                    while (randomIndex == cell.cellX || grid.itemAtIndex(randomIndex).isBomb) {
+                                        randomIndex = Math.floor(Math.random()*100)
                                     }
+                                    var randomCell = grid.itemAtIndex(randomIndex)
+                                    randomCell.setBomb(true)
                                 }
+                            }
                             else {
                                     if (!cell.isRevealed && !cell.isFlagged) {
                                         cell.setRevealed(true);
@@ -207,6 +204,7 @@ Window {
                                     cell.setNeighboringBombs()
                                 }
                             }
+                        }
                         }
                     }
                     // Clickable area that only accepts right clicks. Flags cells
