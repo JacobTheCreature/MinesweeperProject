@@ -22,14 +22,35 @@ Window {
     property var cellPositions: []
     property var bombPositions: []
 
-    function resetGame() {
-            gameTime.secondsElapsed = 0;
-            gameTime.running = false;
-            firstClick = true; // Reset game state
-            for (var i = 0; i < grid.model; i++) { // Reset the game board
-                var cell = grid.itemAtIndex(i);
-                cell.reset();
+    function updateNeighboringBombCounts() {
+        for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numColumns; j++) {
+                let count = 0;
+                for (let di = -1; di <= 1; di++) {
+                    for (let dj = -1; dj <= 1; dj++) {
+                        if (di === 0 && dj === 0) continue;
+                        let ni = i + di, nj = j + dj;
+                        if (ni >= 0 && ni < numRows && nj >= 0 && nj < numColumns) {
+                            let neighborCell = grid.(ni * numColumns + nj);
+                            if (neighborCell.isBomb) count++;
+                        }
+                    }
+                }
+                let cell = grid.itemAt(i * numColumns + j);
+                cell.setNeighboringBombs();
             }
+        }
+    }
+
+    function resetGame() {
+        gameTime.secondsElapsed = 0;
+        gameTime.running = false;
+        firstClick = true; // Reset game state
+        gameOverOverlay.visible = false; // Hide the game over overlay
+        for (var i = 0; i < grid.model; i++) { // Reset the game board
+            var cell = grid.itemAtIndex(i);
+            cell.reset();
+        }
         }
 
     //timer function
@@ -130,7 +151,6 @@ Window {
         }
     }
 
-
     // The minesweeper feild
 
 
@@ -156,6 +176,13 @@ Window {
             // Create a Minesweepercell item for each cell
             delegate: Minesweepercell {
                 id: cell
+                Text {
+                    anchors.centerIn: parent
+                    visible: cell.isRevealed && !cell.isBomb
+                    text: cell.neighboringBombs > 0 ? cell.neighboringBombs.toString() : ""
+                    color: "black"
+                    font.pixelSize: 16
+                }
                 // Give each cell a unique x value corrosponding to its index in the grid and assignit a position value
                 Component.onCompleted: {
                     cell.setX(index)
@@ -205,12 +232,16 @@ Window {
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
-                            if (firstClick) {
-                                firstClick = false;
-                                gameTime.secondsElapsed = 0;
-                                gameTime.restart();
-                                gameTime.running = true;
-                                cell.setRevealed(true);
+                            if (cell.isBomb) {
+                                gameOverOverlay.visible = true;
+                            }
+                            else {
+                                if (firstClick) {
+                                    firstClick = false;
+                                    gameTime.secondsElapsed = 0;
+                                    gameTime.restart();
+                                    gameTime.running = true;
+                                    cell.setRevealed(true);
                                 for (var i = 0; i < 10; i++) {
                                     var randomIndex = Math.floor(Math.random()*100)
                                     while (randomIndex == cell.cellX || grid.itemAtIndex(randomIndex).isBomb) {
@@ -219,6 +250,7 @@ Window {
                                     var randomCell = grid.itemAtIndex(randomIndex)
                                     randomCell.setBomb(true)
                                 }
+                                updateNeighboringBombCounts();
                             }
                             else {
                                 if (!cell.isRevealed || cell.isFlagged) {
@@ -248,9 +280,33 @@ Window {
                                 cell.setFlagged(true)
                             } else {
                                 cell.setFlagged(false)
+                                }
                             }
                         }
                     }
+                }
+            }
+        }
+        // Game Over Frame. Needs to be belowe(maybe) everything to allow overlay over entire board
+
+        Rectangle {
+            id: gameOverOverlay
+            visible: false
+            color: "#80000000"
+            anchors.fill: parent
+
+            Text {
+                id: gameOverText
+                text: "Game Over! Hit reset to play again"
+                font.pixelSize: 24
+                color: "white"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            // Just prevents passthrough clicks
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
                 }
             }
         }
