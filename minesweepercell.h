@@ -28,7 +28,7 @@ public slots:
     void setBomb(bool bomb);
     void setRevealed(bool revealed);
     void setFlagged(bool flagged);
-    int setNeighboringBombs();
+    void setNeighboringBombs(int count);
     void setX(int index);
     void setPlacement(int zone);
     void reset();
@@ -40,7 +40,7 @@ signals:
     void neighboringBombsChanged();
     void isXChanged();
     void isPlacementChanged();
-
+    void gameOver();
 private:
     bool m_isBomb;
     bool m_isRevealed;
