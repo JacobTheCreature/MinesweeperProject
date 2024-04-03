@@ -63,6 +63,10 @@ void minesweepercell::setRevealed(bool revealed)
     if (m_isRevealed != revealed) {
         m_isRevealed = revealed;
         emit isRevealedChanged();
+
+        if (m_isBomb && revealed) {
+            emit gameOver();
+        }
     }
 }
 
@@ -74,10 +78,11 @@ void minesweepercell::setFlagged(bool flagged)
     }
 }
 
-int minesweepercell::setNeighboringBombs()
-{
-    return m_neighboringBombs++;
-    emit neighboringBombsChanged();
+void minesweepercell::setNeighboringBombs(int count) {
+    if (m_neighboringBombs != count) {
+        m_neighboringBombs = count;
+        emit neighboringBombsChanged();
+    }
 }
 void minesweepercell::reset() {
     m_isBomb = false;
