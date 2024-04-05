@@ -3,7 +3,6 @@ import QtQuick.Controls
 import Minesweeper
 import QtQuick.Layouts
 
-
 Window {
     visible: true
     width: 500
@@ -17,9 +16,9 @@ Window {
 
     property int numRows: 10
     property int numColumns: 10
+    property int numMines: 10
     property bool firstClick: true
 
-    property var cellPositions: []
     property var bombPositions: []
 
     function resetGame() {
@@ -30,6 +29,7 @@ Window {
                 var cell = grid.itemAtIndex(i);
                 cell.reset();
             }
+            gameOverOverlay.visible = false;
         }
 
     //timer function
@@ -61,14 +61,26 @@ Window {
             width: 125
             height: 65
             color: "Yellow"
-            Text {
-                text: "Difficulty Select"
-                anchors.fill: parent
-            }
             anchors {
                 top: parent.top
                 bottom: parent.bottom
                 left: parent.left
+            }
+            ComboBox {
+                id: diffSelectBox
+                width: 100
+                height: 45
+                anchors.centerIn: parent
+
+                model: ["Easy", "Normal", "Hard"] // Options for the ComboBox
+
+                padding: 10 // Padding
+
+                onActivated: {
+                    var selectedDifficulty = model[index]; // Get the selected difficulty
+                    // Handle the selected difficulty here (you can emit a signal or call a function)
+                    console.log("Selected difficulty:", selectedDifficulty);
+                }
             }
         }
         // Reset button to reset field !Need to make a reset method for Minesweepercell class!
@@ -120,6 +132,7 @@ Window {
                     var Seconds = seconds < 10 ? "0" + seconds : seconds;
                     return gameTime.running ? "Time: " + minutes + ":" + Seconds : "Time: 0:00";
                 }
+
                 anchors.fill: parent
             }
             anchors {
@@ -156,28 +169,9 @@ Window {
             // Create a Minesweepercell item for each cell
             delegate: Minesweepercell {
                 id: cell
-                // Give each cell a unique x value corrosponding to its index in the grid and assignit a position value
+                // Give each cell a unique x value corrosponding to its index in the grid
                 Component.onCompleted: {
                     cell.setX(index)
-
-                    if (cell.cellX == 0) {cell.setPlacement(0); // top left
-                    } else if (cell.cellX > 0 && cell.cellX < numRows - 1) {
-                        cell.setPlacement(1); // top row
-                    } else if (cell.cellX == numColumns - 1) {
-                        cell.setPlacement(2); // top right
-                    } else if (cell.cellX % numRows == 0 && cell.cellX != numRows * numColumns - numRows) {
-                        cell.setPlacement(3); // left side
-                    } else if ((cell.cellX + 1) % numRows == 0 && cell.cellX != numRows*numColumns-1) {
-                        cell.setPlacement(5); // right side
-                    } else if (cell.cellX == numRows * numColumns - numRows) {
-                        cell.setPlacement(6); // bottom left
-                    } else if (cell.cellX > numRows * numRows - numRows && cell.cellX < numRows * numColumns - 1) {
-                        cell.setPlacement(7); // bottom row
-                    } else if (cell.cellX == numRows * numColumns - 1) {
-                        cell.setPlacement(8); // bottom right
-                    } else {
-                        cell.setPlacement(4); // center
-                    }
                 }
                 // Create a rectangle within each Minesweepercell to give it visual properties
                 Rectangle {
@@ -188,7 +182,7 @@ Window {
                     // If a cell is a bomb it has a B
                     Text {
                         anchors.centerIn: parent
-                        // visible: cell.isRevealed   // Just to force the bomb to remain hidden
+                        visible: cell.isRevealed   // Just to force the bomb to remain hidden
                         text: cell.isBomb ? "B" : ""
                     }
                     // If a cell is flagged it has an F
@@ -196,6 +190,11 @@ Window {
                         anchors.centerIn: parent
                         text: cell.isFlagged ? "F" : ""
                     }
+                    Text {
+                        anchors.centerIn: parent
+                        text: cell.neighboringBombs > 0  && cell.isRevealed ? String(cell.neighboringBombs) : ""
+                    }
+
                     HoverHandler {
                         id: mouseHover
                         acceptedDevices: PointerDevice.Mouse
@@ -204,39 +203,110 @@ Window {
                     // Clickable area. This area is responible for revealing cells
                     MouseArea {
                         anchors.fill: parent
+
+                        function isValidIndex(initialCellIndex) {
+                            const row = Math.floor(index / numColumns);
+                            const column = index % numColumns;
+                            const initialRow = Math.floor(initialCellIndex / numColumns);
+                            const initialColumn = initialCellIndex % numColumns;
+
+
+                            // Check if the cell is around the initial cell
+                            if (Math.abs(row - initialRow) <= 1 && Math.abs(column - initialColumn) <= 1) {
+                                return false;
+                            }
+
+                            return true;
+                        }
+                        function placeMines(initialCellIndex) {
+                            let minesPlaced = 0;
+                            while (minesPlaced < numMines) {
+                                const randomIndex = Math.floor(Math.random() * numRows * numColumns);
+                                if (randomIndex !== initialCellIndex && !grid.itemAtIndex(randomIndex).isBomb && isValidIndex(randomIndex, initialCellIndex, numRows, numColumns)) {
+                                    grid.itemAtIndex(randomIndex).setBomb(true);
+                                    minesPlaced++;
+                                    bombPositions.push(randomIndex)
+                                }
+                            }
+                        }
+                        function countMinesAroundCell(cellIndex) {
+                            if (!grid.itemAtIndex(cellIndex).isBomb) {
+                                const row = Math.floor(cellIndex / numColumns);
+                                const col = cellIndex % numColumns;
+                                let mineCount = 0;
+
+                                for (let i = Math.max(0, row - 1); i <= Math.min(row + 1, numRows - 1); i++) {
+                                    for (let j = Math.max(0, col - 1); j <= Math.min(col + 1, numColumns - 1); j++) {
+                                        if (!(i === row && j === col) && grid.itemAtIndex(i * numColumns + j).isBomb) {
+                                            mineCount++;
+                                        }
+                                    }
+                                }
+                                return mineCount;
+                            }
+                            else {
+                                return -1;
+                            }
+                        }
+
+                        function openSafeArea(cellIndex) {
+                            const row = Math.floor(cellIndex / numColumns);
+                            const col = cellIndex % numColumns;
+
+                            if (cell.neighboringBombs > 0) {
+                                cell.setFlagged(false);
+                                cell.setRevealed(true);
+                                return;
+                            }
+
+                            for (let i = Math.max(0, row - 1); i <= Math.min(row + 1, numRows - 1); i++) {
+                                for (let j = Math.max(0, col - 1); j <= Math.min(col + 1, numColumns - 1); j++) {
+                                    if (!(i === row && j === col) && grid.itemAtIndex(i * numColumns + j).neighboringBombs === 0 && !grid.itemAtIndex(i * numColumns + j).isRevealed && cell.neighboringBombs == 0) {
+                                        grid.itemAtIndex(i * numColumns + j).setFlagged(false);
+                                        grid.itemAtIndex(i * numColumns + j).setRevealed(true);
+                                        openSafeArea(grid.itemAtIndex(i * numColumns + j).cellX);
+                                    }
+                                    if (!(i === row && j === col) && grid.itemAtIndex(i * numColumns + j).neighboringBombs > 0) {
+                                        grid.itemAtIndex(i * numColumns + j).setFlagged(false);
+                                        grid.itemAtIndex(i * numColumns + j).setRevealed(true);
+                                    }
+                                }
+                            }
+
+                        }
+
                         onClicked: {
-                            if (firstClick) {
+                            if (firstClick && !cell.isFlagged) {
                                 firstClick = false;
                                 gameTime.secondsElapsed = 0;
                                 gameTime.restart();
                                 gameTime.running = true;
-                                cell.setRevealed(true);
-                                for (var i = 0; i < 10; i++) {
-                                    var randomIndex = Math.floor(Math.random()*100)
-                                    while (randomIndex == cell.cellX || grid.itemAtIndex(randomIndex).isBomb) {
-                                        randomIndex = Math.floor(Math.random()*100)
-                                    }
-                                    var randomCell = grid.itemAtIndex(randomIndex)
-                                    randomCell.setBomb(true)
+
+                                // Places the mines
+                                placeMines(cell.cellX);
+
+                                // Upon the first click we ittereate through each cell and calculate the number of proximal bombs
+                                for (let i = 0; i < 100; i++) {
+                                    grid.itemAtIndex(i).setNeighboringBombs(countMinesAroundCell(grid.itemAtIndex(i).cellX))
                                 }
+
+                                // Lastly, opens the clicked cell
+                                cell.setRevealed(true);
+
+                                openSafeArea(cell.cellX);
                             }
                             else {
-                                if (!cell.isRevealed || cell.isFlagged) {
-                                cell.setRevealed(true);
-                            }
-                            // There needs to be special nehboring bomb counting for edge and corner cells. This is for only the top left cell
-                            if (cell.cellX == 0) {
-                                if (grid.itemAtIndex(cell.cellX+1).isBomb) {
-                                    cell.setNeighboringBombs()
+                                if (cell.isBomb && !cell.isFlagged) {
+                                    for (let b = 0; b < bombPositions.length; b++) {
+                                        grid.itemAtIndex(bombPositions[b]).setRevealed(true);
+                                    }
+                                    gameOverOverlay.visible = true;
                                 }
-                                if (grid.itemAtIndex(cell.cellX+10).isBomb) {
-                                    cell.setNeighboringBombs()
-                                }
-                                if (grid.itemAtIndex(cell.cellX+11).isBomb) {
-                                    cell.setNeighboringBombs()
+                                if (!cell.isRevealed && !cell.isFlagged && !cell.isBomb) {
+                                    cell.setRevealed(true);
+                                    openSafeArea(cell.cellX);
                                 }
                             }
-                        }
                         }
                     }
                     // Clickable area that only accepts right clicks. Flags cells
@@ -252,6 +322,31 @@ Window {
                         }
                     }
                 }
+            }
+        }
+        Rectangle {
+            id: gameOverOverlay
+            visible: false
+            color: "#80000000"
+            anchors.fill: parent
+
+            Text {
+                id: gameOverText
+                text: "Game Over! Hit reset to play again"
+                font.pixelSize: 24
+                color: "white"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+            }
+            // Just prevents passthrough clicks
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                }
+            }
+            HoverHandler {
+                id: gameOverHover
+                acceptedDevices: PointerDevice.Mouse
             }
         }
     }
