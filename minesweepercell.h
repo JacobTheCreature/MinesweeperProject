@@ -12,7 +12,6 @@ class minesweepercell : public QQuickItem
     Q_PROPERTY(bool isFlagged READ isFlagged WRITE setFlagged NOTIFY isFlaggedChanged)
     Q_PROPERTY(int neighboringBombs READ neighboringBombs NOTIFY neighboringBombsChanged)
     Q_PROPERTY(int cellX READ cellX NOTIFY isXChanged)
-    Q_PROPERTY(int placement READ placement NOTIFY isPlacementChanged)
 
 public:
     minesweepercell();
@@ -22,15 +21,13 @@ public:
     bool isFlagged() const;
     int neighboringBombs() const;
     int cellX() const;
-    int placement() const;
 
 public slots:
     void setBomb(bool bomb);
     void setRevealed(bool revealed);
     void setFlagged(bool flagged);
-    int setNeighboringBombs();
+    void setNeighboringBombs(int count);
     void setX(int index);
-    void setPlacement(int zone);
     void reset();
 
 signals:
@@ -40,6 +37,7 @@ signals:
     void neighboringBombsChanged();
     void isXChanged();
     void isPlacementChanged();
+    void resetInitialized();
 
 private:
     bool m_isBomb;
@@ -47,7 +45,6 @@ private:
     bool m_isFlagged;
     int m_neighboringBombs;
     int m_x;
-    int m_placement;
 };
 
 #endif // MINESWEEPERCELL_H
