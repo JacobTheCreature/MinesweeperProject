@@ -7,7 +7,7 @@ look into sound effect
 Maybe pause fuctionality
 
 To Do:
-  1. Win condition set up
+  1. Win condition set up !Check Pull Request!
   2. first click safe area reveal ignores flags, any others do not ignore flags
   3. Difficulty select setup (change size and number of boombs)
   4. Minesweeper face
