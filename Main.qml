@@ -18,18 +18,55 @@ Window {
     property int numColumns: 10
     property int numMines: 10
     property bool firstClick: true
-
+    property int revealedTiles: 0
     property var bombPositions: []
 
+    function updateRevealedTiles(value) {
+            revealedTiles = value;
+        }
+    function checkWin() {
+        var revealedCount = 0;
+        var correctFlagsCount = 0;
+        var totalFlagsCount = 0;
+
+        for (var i = 0; i < grid.model; ++i) {
+            var cell = grid.itemAtIndex(i);
+
+            // Count revealed non-bomb cells
+            if (!cell.isBomb && cell.isRevealed) {
+                revealedCount++;
+            }
+
+            // Count correctly flagged bombs
+            if (cell.isBomb && cell.isFlagged) {
+                correctFlagsCount++;
+            }
+
+            // Count all flags
+            if (cell.isFlagged) {
+                totalFlagsCount++;
+            }
+        }
+
+        // Check if all non-bomb cells are revealed and all bombs are correctly flagged
+        if (revealedCount === (numRows * numColumns - numMines) &&
+            correctFlagsCount === numMines &&
+            correctFlagsCount === totalFlagsCount) {
+            console.log("Win!");
+            winOverlay.visible = true;
+        }
+    }
     function resetGame() {
             gameTime.secondsElapsed = 0;
             gameTime.running = false;
+            updateRevealedTiles(0);
             firstClick = true; // Reset game state
             for (var i = 0; i < grid.model; i++) { // Reset the game board
                 var cell = grid.itemAtIndex(i);
                 cell.reset();
             }
             gameOverOverlay.visible = false;
+            winOverlay.visible = false;
         }
 
     //timer function
@@ -43,7 +80,6 @@ Window {
                 secondsElapsed += 1; // increase timer
             }
         }
-
     // Top navigation bar
     Rectangle {
         id: topbar
@@ -292,6 +328,7 @@ Window {
 
                                 // Lastly, opens the clicked cell
                                 cell.setRevealed(true);
+                                checkWin();
 
                                 openSafeArea(cell.cellX);
                             }
@@ -316,11 +353,34 @@ Window {
                         onClicked: {
                             if ((cell.isFlagged == false) && !cell.isRevealed ) {
                                 cell.setFlagged(true)
+                                checkWin();
                             } else {
                                 cell.setFlagged(false)
                             }
                         }
                     }
+                }
+            }
+        }
+        Rectangle {
+            id: winOverlay
+            visible: false
+            color: "Green"
+            anchors.fill: parent
+
+            Text {
+                id: winText
+                text: "You win!"
+                anchors.centerIn: parent
+                color: "white"
+                font.pixelSize: 20
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    winOverlay.visible = false;
+                    resetGame();
                 }
             }
         }
