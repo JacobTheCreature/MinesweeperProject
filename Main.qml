@@ -76,12 +76,15 @@ Window {
     function setDifficulty(difficulty) {
            switch (difficulty) {
                 case "Easy":
+                    resetGame();
                     mode.setEasy();
                     break;
                 case "Normal":
+                    resetGame();
                     mode.setNormal();
                     break;
                 case "Hard":
+                    resetGame();
                     mode.setHard();
                     break;
             }
