@@ -2,21 +2,22 @@ import QtQuick
 import QtQuick.Controls
 import Minesweeper
 import QtQuick.Layouts
+import difficultySelect
 
 Window {
     visible: true
-    width: 500
-    height: 565
-    title: "Counter App"
-    minimumHeight: 565
-    maximumHeight: 565
-    minimumWidth: 500
-    maximumWidth: 500
+    minimumHeight: mode.windowHeight
+    maximumHeight: mode.windowHeight
+    minimumWidth: mode.windowWidth
+    maximumWidth: mode.windowWidth
+    width: mode.windowWidth
+    height: mode.windowHeight
+    title: "Minesweeper"
 
 
-    property int numRows: 10
-    property int numColumns: 10
-    property int numMines: 10
+    property int numRows: mode.rows
+    property int numColumns: mode.columns
+    property int numMines: mode.numBombs
     property bool firstClick: true
     property int revealedTiles: 0
     property var bombPositions: []
@@ -65,9 +66,30 @@ Window {
                 var cell = grid.itemAtIndex(i);
                 cell.reset();
             }
+            for (var j = 0; j < bombPositions.length; i++) {
+                bombPositions.pop(i);
+            }
+
             gameOverOverlay.visible = false;
             winOverlay.visible = false;
         }
+    function setDifficulty(difficulty) {
+           switch (difficulty) {
+                case "Easy":
+                    mode.setEasy();
+                    break;
+                case "Normal":
+                    mode.setNormal();
+                    break;
+                case "Hard":
+                    mode.setHard();
+                    break;
+            }
+        }
+
+    DifficultySelect {
+        id: mode
+    }
 
     //timer function
     Timer {
@@ -107,15 +129,11 @@ Window {
                 width: 100
                 height: 45
                 anchors.centerIn: parent
-
-                model: ["Easy", "Normal", "Hard"] // Options for the ComboBox
-
-                padding: 10 // Padding
-
+                model: ["Easy", "Normal", "Hard"]
+                padding: 10
                 onActivated: {
-                    var selectedDifficulty = model[index]; // Get the selected difficulty
-                    // Handle the selected difficulty here (you can emit a signal or call a function)
-                    console.log("Selected difficulty:", selectedDifficulty);
+                    var selectedDifficulty = diffSelectBox.currentText;
+                    setDifficulty(selectedDifficulty);
                 }
             }
         }
@@ -185,8 +203,8 @@ Window {
 
     Rectangle {
         id: fieldFrame
-        height: 500
-        width: 500
+        height: mode.fieldHeight
+        width: mode.fieldWidth
         anchors {
             top: topbar.bottom
             left: parent.left
@@ -200,8 +218,8 @@ Window {
             width: parent.width
             height: parent.height
             model: numRows * numColumns
-            cellWidth: 50
-            cellHeight: 50
+            cellWidth: mode.cellWidth
+            cellHeight: mode.cellHeight
             // Create a Minesweepercell item for each cell
             delegate: Minesweepercell {
                 id: cell
@@ -211,10 +229,12 @@ Window {
                 }
                 // Create a rectangle within each Minesweepercell to give it visual properties
                 Rectangle {
+                    id: cellRect
                     width: grid.cellWidth
                     height: grid.cellHeight
                     color: mouseHover.hovered && !cell.isRevealed ? "darkslategrey" : cell.isRevealed ? "lightgrey" : "grey"
                     border.color: "black"
+                    border.width: 0.5
                     // If a cell is a bomb it has a B
                     Text {
                         anchors.centerIn: parent
@@ -258,7 +278,7 @@ Window {
                             let minesPlaced = 0;
                             while (minesPlaced < numMines) {
                                 const randomIndex = Math.floor(Math.random() * numRows * numColumns);
-                                if (randomIndex !== initialCellIndex && !grid.itemAtIndex(randomIndex).isBomb && isValidIndex(randomIndex, initialCellIndex, numRows, numColumns)) {
+                                if (randomIndex !== initialCellIndex && !grid.itemAtIndex(randomIndex).isBomb && isValidIndex(randomIndex)) {
                                     grid.itemAtIndex(randomIndex).setBomb(true);
                                     minesPlaced++;
                                     bombPositions.push(randomIndex)
@@ -322,7 +342,7 @@ Window {
                                 placeMines(cell.cellX);
 
                                 // Upon the first click we ittereate through each cell and calculate the number of proximal bombs
-                                for (let i = 0; i < 100; i++) {
+                                for (let i = 0; i < numRows* numColumns; i++) {
                                     grid.itemAtIndex(i).setNeighboringBombs(countMinesAroundCell(grid.itemAtIndex(i).cellX))
                                 }
 
@@ -411,4 +431,16 @@ Window {
             }
         }
     }
+    Component.onCompleted: {
+        console.log(mode.windowWidth)
+        console.log(mode.windowHeight)
+        console.log(mode.fieldWidth)
+        console.log(mode.fieldHeight)
+        console.log(mode.cellWidth)
+        console.log(mode.cellHeight)
+        console.log(mode.numBombs)
+        console.log(mode.rows)
+        console.log(mode.columns)
+    }
 }
+
