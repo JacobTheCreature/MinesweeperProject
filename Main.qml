@@ -96,109 +96,150 @@ Window {
 
     //timer function
     Timer {
-            id: gameTime
-            interval: 1000 // updates every second
-            repeat: true
-            property int secondsElapsed: 0 // tracker
+        id: gameTime
+        interval: 1000 // updates every second
+        repeat: true
+        property int secondsElapsed: 0 // tracker
 
-            onTriggered: {
-                secondsElapsed += 1; // increase timer
-            }
+        onTriggered: {
+            secondsElapsed += 1; // increase timer
         }
+    }
+
     // Top navigation bar
     Rectangle {
         id: topbar
         height: 65
-        width: 500
+        width: mode.windowWidth
         anchors {
             top: parent.top
             right: parent.right
             left: parent.left
             bottom: fieldFrame.top
         }
-        // Difficulty selection button !Look into ComboButton!
         Rectangle {
-            id: diffSelect
-            width: 125
+            id: diffWrapper
             height: 65
-            color: "Yellow"
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
                 left: parent.left
             }
-            ComboBox {
-                id: diffSelectBox
-                width: 100
-                height: 45
-                anchors.centerIn: parent
-                model: ["Easy", "Normal", "Hard"]
-                padding: 10
-                onActivated: {
-                    var selectedDifficulty = diffSelectBox.currentText;
-                    setDifficulty(selectedDifficulty);
+            // Difficulty selection button
+            Rectangle {
+                id: diffSelect
+                width: 125
+                height: 65
+                color: "blue"
+                anchors.left: parent.left
+                ComboBox {
+                    id: diffSelectBox
+                    width: 100
+                    height: 44
+                    anchors.centerIn: parent
+                    model: ["Easy", "Normal", "Hard"]
+                    padding: 10
+                    onActivated: {
+                        var selectedDifficulty = diffSelectBox.currentText;
+                        setDifficulty(selectedDifficulty);
+                    }
                 }
             }
         }
-        // Reset button to reset field !Need to make a reset method for Minesweepercell class!
         Rectangle {
-            id: reset
-            width: 125
+            id: resetWrapper
             height: 65
-            color: "Grey"
-            Text {
-                text: "Reset"
-                anchors.fill: parent
-            }
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: diffSelect.right
+                left: diffWrapper.right
             }
-            MouseArea {
-               anchors.fill: parent
-               onClicked: resetGame() // Call resetGame when the reset button is clicked
-            }
-        }
-        // Shows how many flags you have left !Look into making a flag class that acts as a counter maybe!
-        Rectangle {
-            id: flags
-            width: 125
-            height: 65
-            color: "Tan"
-            Text {
-                text: "flags"
-                anchors.fill: parent
-            }
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: reset.right
-            }
-        }
-        // Timer to show how long the game lasts !Look into Timer!
-        Rectangle {
-            id: timer
-            width: 125
-            height: 65
-            color: "Cyan"
-            Text {
-                text: {
-                    var minutes = Math.floor(gameTime.secondsElapsed / 60);
-                    var seconds = gameTime.secondsElapsed % 60;
-                    var Seconds = seconds < 10 ? "0" + seconds : seconds;
-                    return gameTime.running ? "Time: " + minutes + ":" + Seconds : "Time: 0:00";
-                }
 
-                anchors.fill: parent
+            // Reset button to reset field !Need to make a reset method for Minesweepercell class!
+            Rectangle {
+                id: reset
+                width: 100
+                height: 44
+                color: "#ad9f8e"
+                Text {
+                    text: "Reset"
+                    anchors.fill: parent
+                }
+                anchors.centerIn: parent
+                MouseArea {
+                   anchors.fill: parent
+                   onClicked: resetGame() // Call resetGame when the reset button is clicked
+                }
             }
+        }
+        Rectangle {
+            id: flagsWrapper
+            height: 65
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: flags.right
+                left: resetWrapper.right
+            }
+
+            // Shows how many flags you have left !Look into making a flag class that acts as a counter maybe!
+            Rectangle {
+                id: flags
+                width: 100
+                height: 44
+                color: "#ad9f8e"
+                Text {
+                    text: "flags"
+                    anchors.fill: parent
+                }
+            anchors.centerIn: parent
             }
         }
-    }
+
+        Rectangle {
+            id: timerWrapper
+            height: 65
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: flagsWrapper.right
+            }
+            // Timer to show how long the game lasts !Look into Timer!
+            Rectangle {
+                id: timer
+                width: 100
+                height: 44
+                color: "darkslategrey"
+                border.width: 4
+                border.color: "black"
+                Text {
+                    text: {
+                        var minutes = Math.floor(gameTime.secondsElapsed / 60);
+                        var seconds = gameTime.secondsElapsed % 60;
+                        var Seconds = seconds < 10 ? "0" + seconds : seconds;
+                        return gameTime.running ? minutes + ":" + Seconds : "0:00";
+                    }
+                    font.pointSize: 22
+                    color: "#ad9f8e"
+
+                    anchors.centerIn: parent
+                }
+                anchors {
+                    right: parent.right
+                    rightMargin: 12.5
+                    top: parent.top
+                    topMargin: 10
+                }
+            }
+        }
+        }
 
 
     // The minesweeper feild
@@ -211,7 +252,7 @@ Window {
         anchors {
             top: topbar.bottom
             left: parent.left
-            right:parent.right
+            right: parent.right
             bottom: parent.bottom
         }
         // A grid that holds all the cells in an array. Indices are 0-99
@@ -235,7 +276,7 @@ Window {
                     id: cellRect
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: mouseHover.hovered && !cell.isRevealed ? "darkslategrey" : cell.isRevealed ? "lightgrey" : "grey"
+                    color: mouseHover.hovered && !cell.isRevealed ? "#526935" : cell.isRevealed ? "#926c4d" : "#637f40"
                     border.color: "black"
                     border.width: 0.5
                     // If a cell is a bomb it has a B
