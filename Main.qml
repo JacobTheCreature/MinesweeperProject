@@ -342,6 +342,7 @@ Window {
                                 if (!cell.isRevealed && !cell.isFlagged && !cell.isBomb) {
                                     cell.setRevealed(true);
                                     openSafeArea(cell.cellX);
+                                    checkWin();
                                 }
                             }
                         }
