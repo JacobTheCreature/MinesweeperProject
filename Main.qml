@@ -1,3 +1,4 @@
+
 import QtQuick
 import QtQuick.Controls
 import Minesweeper
@@ -66,9 +67,7 @@ Window {
                 var cell = grid.itemAtIndex(i);
                 cell.reset();
             }
-            for (var j = 0; j < bombPositions.length; i++) {
-                bombPositions.pop(i);
-            }
+            bombPositions = [];
 
             gameOverOverlay.visible = false;
             winOverlay.visible = false;
@@ -121,7 +120,7 @@ Window {
             id: diffWrapper
             height: 65
             width: mode.windowWidth / 4
-            color: "#9fac8f"
+            color: "dimgrey"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
@@ -132,7 +131,7 @@ Window {
                 id: diffSelect
                 width: 125
                 height: 65
-                color: "blue"
+                color: "dimgrey"
                 anchors.left: parent.left
                 ComboBox {
                     id: diffSelectBox
@@ -140,7 +139,6 @@ Window {
                     height: 44
                     anchors.centerIn: parent
                     model: ["Easy", "Normal", "Hard"]
-                    padding: 10
                     onActivated: {
                         var selectedDifficulty = diffSelectBox.currentText;
                         setDifficulty(selectedDifficulty);
@@ -151,13 +149,9 @@ Window {
         Rectangle {
             id: resetWrapper
             height: 65
-            width: mode.windowWidth / 4
-            color: "#9fac8f"
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: diffWrapper.right
-            }
+            width: mode.windowWidth/2
+            color: "dimgrey"
+            anchors.centerIn: parent
 
             // Reset button to reset field !Need to make a reset method for Minesweepercell class!
             Rectangle {
@@ -165,10 +159,6 @@ Window {
                 width: 100
                 height: 44
                 color: "#ad9f8e"
-                Text {
-                    text: "Reset"
-                    anchors.fill: parent
-                }
                 anchors.centerIn: parent
                 MouseArea {
                    anchors.fill: parent
@@ -180,11 +170,11 @@ Window {
             id: flagsWrapper
             height: 65
             width: mode.windowWidth / 4
-            color: "#9fac8f"
+            color: "dimgrey"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: resetWrapper.right
+                right: timerWrapper.left
             }
 
             // Shows how many flags you have left !Look into making a flag class that acts as a counter maybe!
@@ -205,17 +195,17 @@ Window {
             id: timerWrapper
             height: 65
             width: mode.windowWidth / 4
-            color: "#9fac8f"
+            color: "dimgrey"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: flagsWrapper.right
+                right: parent.right
             }
             // Timer to show how long the game lasts !Look into Timer!
             Rectangle {
                 id: timer
                 width: 100
-                height: 44
+                height: 45
                 color: "darkslategrey"
                 border.width: 4
                 border.color: "black"
@@ -276,14 +266,15 @@ Window {
                     id: cellRect
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: mouseHover.hovered && !cell.isRevealed ? "#526935" : cell.isRevealed ? "#926c4d" : "#637f40"
+                    color: mouseHover.hovered && !cell.isRevealed ? "darkslategrey" : cell.isRevealed ? "lightgrey" : "grey"
                     border.color: "black"
                     border.width: 0.5
                     // If a cell is a bomb it has a B
                     Text {
                         anchors.centerIn: parent
                         visible: cell.isRevealed   // Just to force the bomb to remain hidden
-                        text: cell.isBomb ? "B" : ""
+                        text: cell.isBomb ? "💣" : ""
+                        font.pixelSize: 50
                     }
                     // If a cell is flagged it has an F
                     Text {
@@ -293,6 +284,8 @@ Window {
                     Text {
                         anchors.centerIn: parent
                         text: cell.neighboringBombs > 0  && cell.isRevealed ? String(cell.neighboringBombs) : ""
+                        color: cell.neighboringBombs == 1 ? "blue" : cell.neighboringBombs == 2 ? "green" : cell.neighboringBombs == 3 ? "orange" : cell.neighboringBombs == 4 ? "purple" : cell.neighboringBombs == 5 ? "red" : cell.neighboringBombs == 6 ? "cyan" : cell.neighboringBombs == 7 ? "darkslategrey" : cell.neighboringBombs == 8 ? "brown" : "black"
+                        font.bold: true
                     }
 
                     HoverHandler {
@@ -411,6 +404,7 @@ Window {
                             }
                         }
                     }
+
                     // Clickable area that only accepts right clicks. Flags cells
                     MouseArea {
                         acceptedButtons: Qt.RightButton
@@ -474,17 +468,6 @@ Window {
                 acceptedDevices: PointerDevice.Mouse
             }
         }
-    }
-    Component.onCompleted: {
-        console.log(mode.windowWidth)
-        console.log(mode.windowHeight)
-        console.log(mode.fieldWidth)
-        console.log(mode.fieldHeight)
-        console.log(mode.cellWidth)
-        console.log(mode.cellHeight)
-        console.log(mode.numBombs)
-        console.log(mode.rows)
-        console.log(mode.columns)
     }
 }
 
