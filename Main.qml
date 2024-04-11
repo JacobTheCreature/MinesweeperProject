@@ -2,21 +2,24 @@ import QtQuick
 import QtQuick.Controls
 import Minesweeper
 import QtQuick.Layouts
+import difficultySelect
 
 Window {
     visible: true
-    width: 500
-    height: 565
-    title: "Counter App"
-    minimumHeight: 565
-    maximumHeight: 565
-    minimumWidth: 500
-    maximumWidth: 500
+    minimumHeight: mode.windowHeight
+    maximumHeight: mode.windowHeight
+    minimumWidth: mode.windowWidth
+    maximumWidth: mode.windowWidth
+    width: mode.windowWidth
+    height: mode.windowHeight
+    title: "Minesweeper"
 
 
-    property int numRows: 10
-    property int numColumns: 10
-    property int numMines: 10
+    property bool mineExploded: false
+    property int flagsPlaced: 0
+    property int numRows: mode.rows
+    property int numColumns: mode.columns
+    property int numMines: mode.numBombs
     property bool firstClick: true
     property int revealedTiles: 0
     property var bombPositions: []
@@ -60,124 +63,197 @@ Window {
             gameTime.secondsElapsed = 0;
             gameTime.running = false;
             updateRevealedTiles(0);
+            mineExploded = false;
+            flagsPlaced = 0;
             firstClick = true; // Reset game state
             for (var i = 0; i < grid.model; i++) { // Reset the game board
                 var cell = grid.itemAtIndex(i);
                 cell.reset();
             }
+            for (var j = 0; j < bombPositions.length; i++) {
+                bombPositions.pop(i);
+            }
+
             gameOverOverlay.visible = false;
             winOverlay.visible = false;
         }
+    function setDifficulty(difficulty) {
+           switch (difficulty) {
+                case "Easy":
+                    resetGame();
+                    mode.setEasy();
+                    break;
+                case "Normal":
+                    resetGame();
+                    mode.setNormal();
+                    break;
+                case "Hard":
+                    resetGame();
+                    mode.setHard();
+                    break;
+            }
+        }
+
+    DifficultySelect {
+        id: mode
+    }
 
     //timer function
     Timer {
-            id: gameTime
-            interval: 1000 // updates every second
-            repeat: true
-            property int secondsElapsed: 0 // tracker
+        id: gameTime
+        interval: 1000 // updates every second
+        repeat: true
+        property int secondsElapsed: 0 // tracker
 
-            onTriggered: {
-                secondsElapsed += 1; // increase timer
-            }
+        onTriggered: {
+            secondsElapsed += 1; // increase timer
         }
+    }
+
     // Top navigation bar
     Rectangle {
         id: topbar
         height: 65
-        width: 500
+        width: mode.windowWidth
         anchors {
             top: parent.top
             right: parent.right
             left: parent.left
             bottom: fieldFrame.top
         }
-        // Difficulty selection button !Look into ComboButton!
         Rectangle {
-            id: diffSelect
-            width: 125
+            id: diffWrapper
             height: 65
-            color: "Yellow"
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
                 left: parent.left
             }
-            ComboBox {
-                id: diffSelectBox
-                width: 100
-                height: 45
+            // Difficulty selection button
+            Rectangle {
+                id: diffSelect
+                width: 125
+                height: 65
+                color: "#9fac8f"
+                anchors.left: parent.left
+                ComboBox {
+                    id: diffSelectBox
+                    width: 100
+                    height: 44
+                    anchors.centerIn: parent
+                    model: ["Easy", "Normal", "Hard"]
+                    padding: 10
+                    onActivated: {
+                        var selectedDifficulty = diffSelectBox.currentText;
+                        setDifficulty(selectedDifficulty);
+                    }
+                }
+            }
+        }
+        Rectangle {
+            id: resetWrapper
+            height: 65
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
+            anchors {
+                top: parent.top
+                bottom: parent.bottom
+                left: diffWrapper.right
+            }
+            Column {
                 anchors.centerIn: parent
+                spacing: 1
+                // if/else pretty much: If game over state = sad otherwise smile
+                Image {
+                    source: mineExploded ? "icons/sad-face.png" : "icons/smiley-face.png"
+                    width: 24
+                    height: 24
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.horizontalCenterOffset: 1
+                }
 
-                model: ["Easy", "Normal", "Hard"] // Options for the ComboBox
-
-                padding: 10 // Padding
-
-                onActivated: {
-                    var selectedDifficulty = model[index]; // Get the selected difficulty
-                    // Handle the selected difficulty here (you can emit a signal or call a function)
-                    console.log("Selected difficulty:", selectedDifficulty);
+                Text {
+                    text: "Reset"
+                    font.pointSize: 12
+                    color: "red"
+                    horizontalAlignment: Text.AlignHCenter
                 }
             }
-        }
-        // Reset button to reset field !Need to make a reset method for Minesweepercell class!
-        Rectangle {
-            id: reset
-            width: 125
-            height: 65
-            color: "Grey"
-            Text {
-                text: "Reset"
-                anchors.fill: parent
-            }
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: diffSelect.right
-            }
+
             MouseArea {
-               anchors.fill: parent
-               onClicked: resetGame() // Call resetGame when the reset button is clicked
+                anchors.fill: parent
+                onClicked: resetGame()
             }
         }
-        // Shows how many flags you have left !Look into making a flag class that acts as a counter maybe!
         Rectangle {
-            id: flags
-            width: 125
+            id: flagsWrapper
             height: 65
-            color: "Tan"
-            Text {
-                text: "flags"
-                anchors.fill: parent
-            }
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: reset.right
+                left: resetWrapper.right
             }
-        }
-        // Timer to show how long the game lasts !Look into Timer!
-        Rectangle {
-            id: timer
-            width: 125
-            height: 65
-            color: "Cyan"
-            Text {
-                text: {
-                    var minutes = Math.floor(gameTime.secondsElapsed / 60);
-                    var seconds = gameTime.secondsElapsed % 60;
-                    var Seconds = seconds < 10 ? "0" + seconds : seconds;
-                    return gameTime.running ? "Time: " + minutes + ":" + Seconds : "Time: 0:00";
+            Row {
+                spacing: 10
+                anchors.centerIn: parent
+                Image {
+                    source: "icons/flag-icon.png"
+                    width: 35
+                    height: 35
                 }
-
-                anchors.fill: parent
+                Text {
+                    width: 35
+                    height: 35
+                    text:": " + (numMines - flagsPlaced) + " remaining"
+                    verticalAlignment: Text.AlignVCenter
+                    color: "white"
+                }
             }
+        }
+
+        Rectangle {
+            id: timerWrapper
+            height: 65
+            width: mode.windowWidth / 4
+            color: "#9fac8f"
             anchors {
                 top: parent.top
                 bottom: parent.bottom
-                left: flags.right
+                left: flagsWrapper.right
+            }
+            // Timer to show how long the game lasts !Look into Timer!
+            Rectangle {
+                id: timer
+                width: 100
+                height: 44
+                color: "darkslategrey"
+                border.width: 4
+                border.color: "black"
+                Text {
+                    text: {
+                        var minutes = Math.floor(gameTime.secondsElapsed / 60);
+                        var seconds = gameTime.secondsElapsed % 60;
+                        var Seconds = seconds < 10 ? "0" + seconds : seconds;
+                        return gameTime.running ? minutes + ":" + Seconds : "0:00";
+                    }
+                    font.pointSize: 22
+                    color: "#ad9f8e"
+
+                    anchors.centerIn: parent
+                }
+                anchors {
+                    right: parent.right
+                    rightMargin: 12.5
+                    top: parent.top
+                    topMargin: 10
+                }
             }
         }
-    }
+        }
 
 
     // The minesweeper feild
@@ -185,12 +261,12 @@ Window {
 
     Rectangle {
         id: fieldFrame
-        height: 500
-        width: 500
+        height: mode.fieldHeight
+        width: mode.fieldWidth
         anchors {
             top: topbar.bottom
             left: parent.left
-            right:parent.right
+            right: parent.right
             bottom: parent.bottom
         }
         // A grid that holds all the cells in an array. Indices are 0-99
@@ -200,8 +276,8 @@ Window {
             width: parent.width
             height: parent.height
             model: numRows * numColumns
-            cellWidth: 50
-            cellHeight: 50
+            cellWidth: mode.cellWidth
+            cellHeight: mode.cellHeight
             // Create a Minesweepercell item for each cell
             delegate: Minesweepercell {
                 id: cell
@@ -211,20 +287,29 @@ Window {
                 }
                 // Create a rectangle within each Minesweepercell to give it visual properties
                 Rectangle {
+                    id: cellRect
                     width: grid.cellWidth
                     height: grid.cellHeight
-                    color: mouseHover.hovered && !cell.isRevealed ? "darkslategrey" : cell.isRevealed ? "lightgrey" : "grey"
+                    color: mouseHover.hovered && !cell.isRevealed ? "#526935" : cell.isRevealed ? "#926c4d" : "#637f40"
                     border.color: "black"
-                    // If a cell is a bomb it has a B
-                    Text {
+                    border.width: 0.5
+                    // If a cell is a bomb it has a Bombicon
+                    Image {
+                        id: bombIcon
                         anchors.centerIn: parent
-                        visible: cell.isRevealed   // Just to force the bomb to remain hidden
-                        text: cell.isBomb ? "B" : ""
+                        visible: cell.isRevealed && cell.isBomb
+                        source: "icons/bomb-icon.png"
+                        width: parent.width * 0.6
+                        height: parent.height * 0.6
                     }
-                    // If a cell is flagged it has an F
-                    Text {
+                    // If a cell is flagged it has an Flagicon
+                    Image {
+                        id: flagIcon
                         anchors.centerIn: parent
-                        text: cell.isFlagged ? "F" : ""
+                        visible: cell.isFlagged
+                        source: "icons/flag-icon.png"
+                        width: parent.width * 0.6
+                        height: parent.height * 0.6
                     }
                     Text {
                         anchors.centerIn: parent
@@ -258,7 +343,7 @@ Window {
                             let minesPlaced = 0;
                             while (minesPlaced < numMines) {
                                 const randomIndex = Math.floor(Math.random() * numRows * numColumns);
-                                if (randomIndex !== initialCellIndex && !grid.itemAtIndex(randomIndex).isBomb && isValidIndex(randomIndex, initialCellIndex, numRows, numColumns)) {
+                                if (randomIndex !== initialCellIndex && !grid.itemAtIndex(randomIndex).isBomb && isValidIndex(randomIndex)) {
                                     grid.itemAtIndex(randomIndex).setBomb(true);
                                     minesPlaced++;
                                     bombPositions.push(randomIndex)
@@ -317,12 +402,19 @@ Window {
                                 gameTime.secondsElapsed = 0;
                                 gameTime.restart();
                                 gameTime.running = true;
-
+                                // flag removal function before first click
+                                for (let h = 0; h < numRows * numColumns; h++) {
+                                            let cell = grid.itemAtIndex(h);
+                                            if (cell.isFlagged) {
+                                                cell.setFlagged(false);
+                                                flagsPlaced--;
+                                            }
+                                        }
                                 // Places the mines
                                 placeMines(cell.cellX);
 
                                 // Upon the first click we ittereate through each cell and calculate the number of proximal bombs
-                                for (let i = 0; i < 100; i++) {
+                                for (let i = 0; i < numRows* numColumns; i++) {
                                     grid.itemAtIndex(i).setNeighboringBombs(countMinesAroundCell(grid.itemAtIndex(i).cellX))
                                 }
 
@@ -334,6 +426,7 @@ Window {
                             }
                             else {
                                 if (cell.isBomb && !cell.isFlagged) {
+                                    mineExploded = true;
                                     for (let b = 0; b < bombPositions.length; b++) {
                                         grid.itemAtIndex(bombPositions[b]).setRevealed(true);
                                     }
@@ -352,11 +445,15 @@ Window {
                         acceptedButtons: Qt.RightButton
                         anchors.fill: parent
                         onClicked: {
-                            if ((cell.isFlagged == false) && !cell.isRevealed ) {
-                                cell.setFlagged(true)
+                            if (!cell.isRevealed) {
+                                if (!cell.isFlagged && flagsPlaced < numMines) {
+                                    cell.setFlagged(true);
+                                    flagsPlaced++;
+                                } else if (cell.isFlagged) {
+                                    cell.setFlagged(false);
+                                    flagsPlaced--;
+                                }
                                 checkWin();
-                            } else {
-                                cell.setFlagged(false)
                             }
                         }
                     }
@@ -410,5 +507,16 @@ Window {
                 acceptedDevices: PointerDevice.Mouse
             }
         }
+    }
+    Component.onCompleted: {
+        console.log(mode.windowWidth)
+        console.log(mode.windowHeight)
+        console.log(mode.fieldWidth)
+        console.log(mode.fieldHeight)
+        console.log(mode.cellWidth)
+        console.log(mode.cellHeight)
+        console.log(mode.numBombs)
+        console.log(mode.rows)
+        console.log(mode.columns)
     }
 }
