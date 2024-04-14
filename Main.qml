@@ -310,6 +310,8 @@ Window {
                     Text {
                         anchors.centerIn: parent
                         text: cell.neighboringBombs > 0  && cell.isRevealed ? String(cell.neighboringBombs) : ""
+                        color: cell.neighboringBombs == 1 ? "blue" : cell.neighboringBombs == 2 ? "green" : cell.neighboringBombs == 3 ? "darkorange" : cell.neighboringBombs == 4 ? "purple" : cell.neighboringBombs == 5 ? "red" : cell.neighboringBombs == 6 ? "cyan" : cell.neighboringBombs == 7 ? "darkslategrey" : cell.neighboringBombs == 8 ? "brown" : "black"
+                        font.bold: true
                     }
 
                     HoverHandler {
