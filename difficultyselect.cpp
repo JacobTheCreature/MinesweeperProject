@@ -76,10 +76,6 @@ void difficultySelect::setHard() {
     emit isRowsChanged();
 }
 
-void difficultySelect::getDifficulty() {
-
-}
-
 int difficultySelect::windowWidth() const {
     return m_windowWidth;
 
