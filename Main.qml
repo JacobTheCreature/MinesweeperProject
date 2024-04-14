@@ -11,9 +11,8 @@ Window {
     minimumWidth: mode.windowWidth
     maximumWidth: mode.windowWidth
     width: mode.windowWidth
-    height: mode.windowHeight
+    height: mode.windowHeight 
     title: "Minesweeper"
-
 
     property bool mineExploded: false
     property int flagsPlaced: 0
@@ -70,9 +69,7 @@ Window {
                 var cell = grid.itemAtIndex(i);
                 cell.reset();
             }
-            for (var j = 0; j < bombPositions.length; i++) {
-                bombPositions.pop(i);
-            }
+                bombPositions = []
 
             gameOverOverlay.visible = false;
             winOverlay.visible = false;
@@ -175,8 +172,7 @@ Window {
                 }
 
                 Text {
-                    text: "Reset"
-                    font.pointSize: 12
+                    text: "Reset";
                     color: "red"
                     horizontalAlignment: Text.AlignHCenter
                 }
@@ -208,7 +204,7 @@ Window {
                 Text {
                     width: 35
                     height: 35
-                    text:": " + (numMines - flagsPlaced) + " remaining"
+                    text:": " + (numMines - flagsPlaced) + ""
                     verticalAlignment: Text.AlignVCenter
                     color: "white"
                 }
@@ -463,16 +459,16 @@ Window {
         Rectangle {
             id: winOverlay
             visible: false
-            color: "Green"
+            color: "#80000000"
             anchors.fill: parent
 
-            Text {
-                id: winText
-                text: "You win!"
+            AnimatedImage {
+                id: winIcon
                 anchors.centerIn: parent
-                color: "white"
-                font.pixelSize: 20
-            }
+                source: "icons/3aO.gif"
+                width: parent.width * 0.6
+                height: parent.height * 0.6
+                }
 
             MouseArea {
                 anchors.fill: parent
@@ -509,12 +505,6 @@ Window {
         }
     }
     Component.onCompleted: {
-        console.log(mode.windowWidth)
-        console.log(mode.windowHeight)
-        console.log(mode.fieldWidth)
-        console.log(mode.fieldHeight)
-        console.log(mode.cellWidth)
-        console.log(mode.cellHeight)
         console.log(mode.numBombs)
         console.log(mode.rows)
         console.log(mode.columns)
