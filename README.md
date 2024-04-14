@@ -13,6 +13,8 @@ This includes taking advantage of the IDE's avalible tools, modules, and its own
 
 [https://www.dropbox.com/scl/fi/9bud04raf7j6ehxgbdv51/Minesweeper-Dirt-Edition.zip?rlkey=ny9sedi9br0szdlw62rmnqra9&dl=0](https://www.dropbox.com/scl/fi/os0frdv5ti5adsmautpe5/Minesweeper-Dirt-Edition.zip?rlkey=frwt3r7gwo6ddxe75ukyadg1f&dl=0)
 
+Click the download button in the top right corner
+
 --Project Report--
 
 Jacob Schirmer- minesweeper and difficultyselect classes, visual properties for minesweeper field and minesweepercells, place mines logic, open safe area logic, cell validation logic, flag cell logic, count neighboring mines logic, UI  layout of topbar, difficultyselect functionality, drew icons
