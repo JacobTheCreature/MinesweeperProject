@@ -17,6 +17,8 @@ qt_add_qml_module(appihopethisworks
     VERSION 1.0
     QML_FILES Main.qml
     SOURCES minesweepercell.h minesweepercell.cpp
+    SOURCES difficultyselect.h difficultyselect.cpp
+    RESOURCES icons/dead.png icons/smile.png icons/bomb-icon.png icons/flag2.png icons/3aO.gif
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
