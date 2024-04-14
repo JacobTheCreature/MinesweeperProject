@@ -1,17 +1,10 @@
-# MinesweeperProject
-College Comp Sci project 
+Computer Science I Final Project
 
-Look into icons
-look into music
-look into sound effect
-Maybe pause fuctionality
+Minesweeper
 
-To Do:
-  1. Win condition set up !Check Pull Request! ✅
-  2. first click safe area reveal ignores flags, any others do not ignore flags
-  3. Difficulty select setup (change size and number of boombs) ✅
-  4. Minesweeper face
-  5. Make timer look more timer-y
-  6. Set up flags counter (number of bombs on board)
-  7. Maybe score board
-  8. Make stuff look cool
+The purpose of this project is to demonstrate practical use of software development practices and processes within a GUI development IDE. Emphasizing object oriented programming to create a good looking software application. 
+This includes taking advantage of the IDE's avalible tools, modules, and its own independant programming language, QML, as the frontend, and tying it togeather with C++ as the backend.
+
+--HOW TO RUN THIS PROGRAM--
+1. Download the "Minesweeper Dirt Edition"
+2. Run "appihopethisworks" executeable
