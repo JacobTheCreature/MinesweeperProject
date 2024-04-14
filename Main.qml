@@ -107,74 +107,90 @@ Window {
         }
     }
 
-    // Top navigation bar
     Rectangle {
-        id: topbar
+    id: topbar
+    height: 65
+    width: mode.windowWidth
+    anchors {
+        top: parent.top
+        right: parent.right
+        left: parent.left
+        bottom: fieldFrame.top
+    }
+    Rectangle {
+        id: diffWrapper
         height: 65
-        width: mode.windowWidth
+        width: mode.windowWidth / 4
+        color: "dimgrey"
         anchors {
             top: parent.top
-            right: parent.right
+            bottom: parent.bottom
             left: parent.left
-            bottom: fieldFrame.top
         }
+        // Difficulty selection button
         Rectangle {
-            id: diffWrapper
+            id: diffSelect
+            width: 125
             height: 65
-            width: mode.windowWidth / 4
-            color: "#9fac8f"
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: parent.left
-            }
-            // Difficulty selection button
-            Rectangle {
-                id: diffSelect
-                width: 125
-                height: 65
-                color: "#9fac8f"
-                anchors.left: parent.left
-                ComboBox {
-                    id: diffSelectBox
-                    width: 100
-                    height: 44
-                    anchors.centerIn: parent
-                    model: ["Easy", "Normal", "Hard"]
-                    padding: 10
-                    onActivated: {
-                        var selectedDifficulty = diffSelectBox.currentText;
-                        setDifficulty(selectedDifficulty);
-                    }
-                }
-            }
-        }
-        Rectangle {
-            id: resetWrapper
-            height: 65
-            width: mode.windowWidth / 4
-            color: "#9fac8f"
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: diffWrapper.right
-            }
-            Column {
+            color: "dimgrey"
+            anchors.left: parent.left
+            ComboBox {
+                id: diffSelectBox
+                width: 100
+                height: 44
                 anchors.centerIn: parent
-                spacing: 1
-                // if/else pretty much: If game over state = sad otherwise smile
-                Image {
-                    source: mineExploded ? "icons/sad-face.png" : "icons/smiley-face.png"
-                    width: 24
-                    height: 24
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.horizontalCenterOffset: 1
+                model: ["Easy", "Normal", "Hard"]
+                padding: 10
+                onActivated: {
+                    var selectedDifficulty = diffSelectBox.currentText;
+                    setDifficulty(selectedDifficulty);
                 }
-
-                Text {
-                    text: "Reset";
-                    color: "red"
-                    horizontalAlignment: Text.AlignHCenter
+            }
+        }
+    }
+    Rectangle {
+        id: resetWrapper
+        height: 65
+        width: mode.windowWidth / 4
+        color: "dimgrey"
+        anchors {
+            left: diffWrapper.right
+            top: parent.top
+            bottom: parent.bottom
+            right: flagsWrapper.left
+        }
+        Rectangle {
+                width: 50
+                height: 55
+                color: "dimgrey"
+                anchors {
+                    top: parent.top
+                    topMargin: 10
+                    right: parent.right
+                }
+            // if/else pretty much: If game over state = sad otherwise smile
+            Image {
+                id: face
+                source: mineExploded ? "qrc:/ihopethisworks/icons/dead.png" : "qrc:/ihopethisworks/icons/smile.png"
+                width: 24
+                height: 24
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: parent.top
+                    bottom: resetText.top
+                }
+            }
+            Text {
+                id: resetText
+                text: "Reset"
+                font.pointSize: 10
+                color: "#ad9f8e"
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    leftMargin: 10
+                    bottom: parent.bottom
                 }
             }
 
@@ -182,74 +198,96 @@ Window {
                 anchors.fill: parent
                 onClicked: resetGame()
             }
+
+        }
+    }
+    Rectangle {
+        id: flagsWrapper
+        height: 65
+        width: mode.windowWidth / 4
+        color: "dimgrey"
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            right: timerWrapper.left
         }
         Rectangle {
-            id: flagsWrapper
-            height: 65
-            width: mode.windowWidth / 4
-            color: "#9fac8f"
             anchors {
                 top: parent.top
-                bottom: parent.bottom
-                left: resetWrapper.right
+                topMargin: 10
+                left: parent.left
+                leftMargin: 10
             }
-            Row {
-                spacing: 10
-                anchors.centerIn: parent
-                Image {
-                    source: "icons/flag-icon.png"
-                    width: 35
-                    height: 35
-                }
-                Text {
-                    width: 35
-                    height: 35
-                    text:": " + (numMines - flagsPlaced) + ""
-                    verticalAlignment: Text.AlignVCenter
-                    color: "white"
-                }
-            }
-        }
 
-        Rectangle {
-            id: timerWrapper
-            height: 65
-            width: mode.windowWidth / 4
-            color: "#9fac8f"
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: flagsWrapper.right
-            }
-            // Timer to show how long the game lasts !Look into Timer!
-            Rectangle {
-                id: timer
-                width: 100
-                height: 44
-                color: "darkslategrey"
-                border.width: 4
-                border.color: "black"
-                Text {
-                    text: {
-                        var minutes = Math.floor(gameTime.secondsElapsed / 60);
-                        var seconds = gameTime.secondsElapsed % 60;
-                        var Seconds = seconds < 10 ? "0" + seconds : seconds;
-                        return gameTime.running ? minutes + ":" + Seconds : "0:00";
-                    }
-                    font.pointSize: 22
-                    color: "#ad9f8e"
-
-                    anchors.centerIn: parent
-                }
-                anchors {
-                    right: parent.right
-                    rightMargin: 12.5
+            color: "dimgrey"
+            height: 55
+            width: 50
+            Image {
+                source: "qrc:/ihopethisworks/icons/flag2.png"
+                width: 35
+                height: 35
+                anchors{
                     top: parent.top
-                    topMargin: 10
+                    right: parent.right
+                    left: parent.left
+                    leftMargin: 5
+                    rightMargin: 5
+                    topMargin: 5
+                }
+            }
+            Text {
+                text: (numMines - flagsPlaced)
+                font.pointSize: 10
+                verticalAlignment: Text.AlignVCenter
+                color: "#ad9f8e"
+                anchors {
+                    left: parent.left
+                    leftMargin: 17
+                    bottom: parent.bottom
                 }
             }
         }
+    }
+
+    Rectangle {
+        id: timerWrapper
+        height: 65
+        width: mode.windowWidth / 4
+        color: "dimgrey"
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            right:parent.right
         }
+        // Timer to show how long the game lasts !Look into Timer!
+        Rectangle {
+            id: timer
+            width: 100
+            height: 44
+            color: "darkslategrey"
+            border.width: 4
+            border.color: "black"
+            Text {
+                text: {
+                    var minutes = Math.floor(gameTime.secondsElapsed / 60);
+                    var seconds = gameTime.secondsElapsed % 60;
+                    var Seconds = seconds < 10 ? "0" + seconds : seconds;
+                    return gameTime.running ? minutes + ":" + Seconds : "0:00";
+                }
+                font.pointSize: 22
+                color: "#ad9f8e"
+
+                anchors.centerIn: parent
+            }
+            anchors {
+                right: parent.right
+                rightMargin: 12.5
+                top: parent.top
+                topMargin: 10
+            }
+        }
+    }
+}
 
 
     // The minesweeper feild
