@@ -33,7 +33,6 @@ public slots:
     void setEasy();
     void setNormal();
     void setHard();
-    void getDifficulty();
 
 signals:
     void isDifficultyChanged();
