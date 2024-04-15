@@ -109,7 +109,6 @@ Window {
         interval: 1000 // updates every second
         repeat: true
         property int secondsElapsed: 0 // tracker
-
         onTriggered: {
             secondsElapsed += 1; // increase timer
         }
@@ -232,7 +231,6 @@ Window {
                     left: parent.left
                     leftMargin: 10
                 }
-
                 color: "dimgrey"
                 height: 55
                 width: 50
@@ -290,7 +288,6 @@ Window {
                     }
                     font.pointSize: 22
                     color: "#ad9f8e"
-
                     anchors.centerIn: parent
                 }
                 anchors {
@@ -383,12 +380,10 @@ Window {
                             const initialRow = Math.floor(initialCellIndex / numColumns);
                             const initialColumn = initialCellIndex % numColumns;
 
-
                             // Check if the cell is around the initial cell
                             if (Math.abs(row - initialRow) <= 1 && Math.abs(column - initialColumn) <= 1) {
                                 return false;
                             }
-
                             return true;
                         }
 
