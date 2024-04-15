@@ -8,7 +8,6 @@ minesweepercell::minesweepercell() :
 
 {}
 
-
 int minesweepercell::cellX() const
 {
     return m_x;
@@ -33,8 +32,6 @@ int minesweepercell::neighboringBombs() const
 {
     return m_neighboringBombs;
 }
-
-
 
 void minesweepercell::setX(int index)
 {
