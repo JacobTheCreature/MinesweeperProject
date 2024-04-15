@@ -19,4 +19,4 @@ Click the download button in the top right corner
 
 Jacob Schirmer- minesweeper and difficultyselect classes, visual properties for minesweeper field and minesweepercells, place mines logic, open safe area logic, cell validation logic, flag cell logic, count neighboring mines logic, UI  layout of topbar, difficultyselect functionality, drew icons
 
-Syrae Wold- Worked on Gameover/Win condition and functionality, Bomb Revealing functionality, Timer functionality, Reset Functionality, Flag Counter Logic, Icon logic
+Syrae Wold- Worked on Gameover/Win condition and functionality, Bomb Revealing functionality, Timer functionality, Reset Functionality, Flag Counter Logic, Icon logic, Create executeables
