@@ -78,7 +78,6 @@ void difficultySelect::setHard() {
 
 int difficultySelect::windowWidth() const {
     return m_windowWidth;
-
 }
 
 int difficultySelect::widnowHeight() const {
