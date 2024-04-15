@@ -12,7 +12,6 @@ difficultySelect::difficultySelect() :
     m_rows(10)
 {}
 
-
 void difficultySelect::setEasy() {
     m_windowWidth = 500;
     m_windowHeight = 565;
